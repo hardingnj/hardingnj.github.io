@@ -31,7 +31,6 @@ Now cd to your ~/sync directory and run an rsync command to the part of the file
 
 The flags are important here:
 
-
     -v verbose
     -r recursive
     -R use relative filenames, this will ensure the directory structures match
@@ -43,3 +42,14 @@ The second thing you probably want to map to the container is your code reposito
     ~/git
 
 so when it comes to running the container I run a command like:
+
+    biipy_version=v0.8
+    docker run -d \
+      -v ${HOME}/git:/home \
+      -v /data:/data \
+      -p 31778:8888 \
+      --name biipy_$biipy_version \
+      -e "docker_image=$biipy_version" \
+      cggh/biipy:${biipy_version}
+
+Now fire up a browser and navigate to localhost:31778 (or whatever IP address you chose to set on your machine)
