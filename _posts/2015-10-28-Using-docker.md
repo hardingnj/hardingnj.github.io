@@ -22,14 +22,12 @@ The first is `/data`, which contains all the ag1k data, and is also where I will
 Firstly create a “sync” directory somewhere on your system. Home directory is fine.
 
     mkdir -p ~/sync/data
-Then symlink the root /data to your new directory. The reason I do it this way is we run into less issues with permissions, and being in a working directory directly below data allows us to use the `-R` function of `Rsync` neatly.
-
-    ln -s /data ~/sync/data
 
 Now cd to your ~/sync directory and run an rsync command to the part of the filesystem you want to synchronise (the . at the end (meaning current directory) is important!):
 
+    cd ~/sync
     rsync --progress -vrRun \
-      clusterpath:/data/anopheles/example/example/example \
+      foxtrot.well.ox.ac.uk:/data/coluzzi/ag1000g/data/phase1/release/AR3/variation/main/hdf5/ \
       .
 
 The flags are important here:
@@ -39,6 +37,10 @@ The flags are important here:
 - `-R` use relative filenames, will ensure the directory structures match
 - `-u` only copy newer files, this saves time by not recopying unnecessarily
 - `-n` dry run! Remove this flag when you are satisfied with the file list.
+
+Then symlink the root /data to your new directory. The reason I do it this way is we run into less issues with permissions, and being in a working directory directly below data allowed us to use the `-R` function of `Rsync` neatly.
+
+    ln -s /data ~/sync/data
 
 The second thing you probably want to map to the container is your code repository. I have all my analysis code (mainly ipython notebooks) checked out in `~/git`. I manage my git pull/push outside of the docker container as normal.
 
@@ -56,4 +58,4 @@ so when it comes to running the container I run something like:
 Now fire up a browser and navigate to localhost:31778 (or whatever IP address you chose to set on your machine)
 
 ### Caution
-Only the mapped volumes will have data persist after you havve finished working, *anything* you write to *anywhere* else on disk will not be kept when the container is exited. 
+Only the mapped volumes will have data persist after you have finished working, *anything* you write to *anywhere* else on disk will not be kept when the container is exited. 
