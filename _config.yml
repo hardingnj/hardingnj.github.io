@@ -6,7 +6,7 @@
 name: Nick Harding
 
 # Short bio or description (displayed in the header)
-description: Bioinformatician MalariaGEN
+description: Bioinformatician for the MalariaGEN project, WTCHG, Oxford
 
 # URL of your avatar or profile pic (you could use your GitHub profile pic)
 avatar: http://www.malariagen.net/sites/www.malariagen.net/files/images/LORESWEB_256Nick_Harding-3486.jpg
@@ -41,7 +41,7 @@ google_analytics:
 
 # Your website URL (e.g. http://barryclark.github.io or http://www.barryclark.co)
 # Used for Sitemap.xml and your RSS feed
-url:
+url: http://www.malariagen.net/content/nick-harding
 
 # If you're hosting your site at a Project repository on GitHub pages
 # (http://yourusername.github.io/repository-name)
