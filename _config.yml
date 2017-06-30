@@ -1,5 +1,5 @@
 # Site settings
-title: Nick Harding
+name: Nick Harding
 email: njh@well.ox.ac.uk
 description: Bioinformatician for MalariaGEN
 baseurl: "" # the subpath of your site, e.g. /blog/
