@@ -1,7 +1,7 @@
 # Site settings
 title: Nick Harding
 email: njh@well.ox.ac.uk
-description: >
+description: Bioinformatician for MalariaGEN
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: "http://hardingnj.github.io" # the base hostname & protocol for your site
 twitter_username: nick_harding
