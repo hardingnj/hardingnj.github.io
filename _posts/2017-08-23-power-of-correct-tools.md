@@ -4,15 +4,17 @@ title: Finding the right tools for the job
 ---
 
 
-This blog is an introduction to two python modules, `msprime` (by Jerome Kelleher) and `scikit-allel` (by Alistair Miles), both of whom are based in Oxford at the big data institute. They are both really great tools, and if you work with genomic data I would encourage you to take a look at them. However, the particular point I'd like to make here is that they play really nicely together. 
+This blog is an introduction to two python modules, `msprime` (by Jerome Kelleher) and `scikit-allel` (by Alistair Miles), both of whom are based in Oxford at the [Big Data Institute](https://www.bdi.ox.ac.uk/). They are both really great tools, and if you work with genomic data I would encourage you to take a look at them.
 
-[msprime](https://msprime.readthedocs.io/en/stable/) is a coalescent simulator with a python interface, essentially an efficient version of *ms*, that also writes data in a sensible format, a compressed sequence tree rather than text files that need to be parsed (which are the bane of bioinformaticians).
+However, the particular point I'd like to make here is that they work *really* nicely together. 
 
-[scikit-allel](https://scikit-allel.readthedocs.io/en/latest/) is a toolkit for working with genomic data, crucially it abstracts data chunking and compression allowing handling of extremely large datasets on a desktop machine. It has a wealth of functions, and is very fast.
+[msprime](https://msprime.readthedocs.io/en/stable/) is a coalescent simulator with a python interface, essentially an efficient version of `ms`, that also writes data in a sensible format, a compressed sequence tree rather than text files that need to be parsed (which are the bane of bioinformaticians).
 
-What would have taken days to write a command line for `ms`, parse the results into something `plink` can work with, compute summary statistics, then parse that into a format for plotting library is possible in a few very readable lines of python. 
+[scikit-allel](https://scikit-allel.readthedocs.io/en/latest/) is a toolkit for working with genomic data. Crucially it abstracts data chunking and compression allowing handling of extremely large datasets on a desktop machine. It has a wealth of functions, and is very fast.
 
-Writing your own parsing code is prone to bugs, even for experienced coders. It's almost invariably inefficient, and harder to maintain/reproduce when you have several tools in your chain.  
+It's easy to imagine taking several days to construct and debug an `ms` command, parse the results into something `plink` can work with, compute summary statistics, then parse that into a format appropriate for a plotting library. What I will show here is that this is possible in a few very readable lines of python.
+
+Writing your own parsing code is prone to bugs, even for experienced coders. It's almost invariably inefficient, and harder to maintain/reproduce when you have several tools in your chain.
 
 ## Here comes some code...
 
@@ -23,7 +25,6 @@ We begin as usual by importing some essential libraries. As well as the two that
 import allel
 import msprime
 import seaborn as sns
-import numpy as np
 import pandas as pd
 %matplotlib inline
 {% endhighlight %}
@@ -168,11 +169,11 @@ def growth_dem_model(pop_cfg, dem_hist, length=1e7, mu=3.5e-9, rrate=1e-8, seed=
     # print the number of mutations in the trees using an internal method
     print("Simulated ", tree_sequence.get_num_mutations(), "mutations")
     
-    # another method returns these variants, and we convert to a numpy array
-    # for clarity although by default the object returned is an nd.array
-    _gt = [np.array(variant.genotypes) for variant in tree_sequence.variants()]
+    # another method returns a generator for these variants and we instantiate as a list
+    _gt = [variant.genotypes for variant in tree_sequence.variants()]
     
-    # create a haplotype array in allel from a list of numpy arrays of 0/1s 
+    # create a haplotype array in allel from a list of numpy arrays of 0/1s
+    # as the dataset is reasonably small there is no need to use the chunking functionality of allel
     gt = allel.HaplotypeArray(_gt)
     
     # scikit-allel expects integer values here rather than infinite sites model of msprime.
@@ -198,8 +199,8 @@ simulations = {"recent_crash": growth_dem_model(pop_config, history_p1, length=c
 
     Simulated  98234 mutations
     Simulated  70472 mutations
-    CPU times: user 2min 56s, sys: 360 ms, total: 2min 56s
-    Wall time: 2min 56s
+    CPU times: user 3min, sys: 60 ms, total: 3min
+    Wall time: 3min
 
 
 Initialize our data frame: create a multi-index from the combinations of the things we are interested in, and tell it how many rows to expect.
@@ -238,7 +239,7 @@ for key, (haps, pos) in simulations.items():
 {% endhighlight %}
 
     CPU times: user 0 ns, sys: 0 ns, total: 0 ns
-    Wall time: 5.25 µs
+    Wall time: 7.63 µs
 
 
 
@@ -246,7 +247,7 @@ for key, (haps, pos) in simulations.items():
 from IPython.display import HTML
 {% endhighlight %}
 
-(I haven't yet figured out how to get multiindex tables to look nice in markdown/html!)
+(I haven't yet figured out how to get multi-index tables to look nice in markdown/html- apologies!)
 
 
 {% highlight python %}
@@ -276,47 +277,47 @@ HTML(df.head().to_html(float_format='%.4f'))
   <tbody>
     <tr>
       <th>0</th>
+      <td>0.0026</td>
+      <td>1.0976</td>
       <td>0.0019</td>
-      <td>-0.0356</td>
       <td>0.0019</td>
-      <td>0.0016</td>
-      <td>1.5078</td>
+      <td>2.5442</td>
       <td>0.0011</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.0018</td>
-      <td>0.2704</td>
+      <td>0.0023</td>
+      <td>1.0926</td>
       <td>0.0017</td>
-      <td>0.0022</td>
-      <td>1.6559</td>
+      <td>0.0027</td>
+      <td>2.5882</td>
       <td>0.0015</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>0.0019</td>
-      <td>0.3512</td>
-      <td>0.0017</td>
       <td>0.0023</td>
-      <td>1.3548</td>
+      <td>1.0936</td>
+      <td>0.0017</td>
+      <td>0.0030</td>
+      <td>2.6009</td>
       <td>0.0017</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>0.0020</td>
-      <td>0.5189</td>
+      <td>0.0023</td>
+      <td>1.0940</td>
       <td>0.0018</td>
-      <td>0.0019</td>
-      <td>1.5628</td>
+      <td>0.0023</td>
+      <td>2.5704</td>
       <td>0.0013</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>0.0013</td>
-      <td>-0.7073</td>
+      <td>0.0022</td>
+      <td>1.0915</td>
       <td>0.0017</td>
-      <td>0.0018</td>
-      <td>1.9320</td>
+      <td>0.0020</td>
+      <td>2.5470</td>
       <td>0.0011</td>
     </tr>
   </tbody>
@@ -331,5 +332,7 @@ _ = sns.factorplot(x="scenario", y="value", col="statistic",
 {% endhighlight %}
 
 
-![png](/assets/2017-07-17-power-of-correct-tools_files/2017-07-17-power-of-correct-tools_27_0.png)
+![png](/assets/2017-08-23-power-of-correct-tools_files/2017-08-23-power-of-correct-tools_27_0.png)
 
+
+Thanks for reading this far! Hope something was of use. 
