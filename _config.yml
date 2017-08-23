@@ -9,7 +9,7 @@ github_username:  harding_nj
 
 # Build settings
 markdown: kramdown
-exclude: ['*.sh', '_posts/data']
+exclude: ['*.ipynb', '*.sh', '_posts/data']
 
 # URL of your avatar or profile pic (you could use your GitHub profile pic)
 avatar: https://www.malariagen.net/sites/default/files/styles/140-1x1/public/content/user/image/Nick%20HARDING.png
