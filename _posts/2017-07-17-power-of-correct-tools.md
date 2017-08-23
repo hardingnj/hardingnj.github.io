@@ -1,6 +1,6 @@
 ---
 layout: post
-title: the-right-tools-for-the-job
+title: Finding the right tools for the job
 ---
 
 
@@ -198,8 +198,8 @@ simulations = {"recent_crash": growth_dem_model(pop_config, history_p1, length=c
 
     Simulated  98234 mutations
     Simulated  70472 mutations
-    CPU times: user 3min 10s, sys: 288 ms, total: 3min 11s
-    Wall time: 3min 11s
+    CPU times: user 2min 56s, sys: 360 ms, total: 2min 56s
+    Wall time: 2min 56s
 
 
 Initialize our data frame: create a multi-index from the combinations of the things we are interested in, and tell it how many rows to expect.
@@ -238,13 +238,15 @@ for key, (haps, pos) in simulations.items():
 {% endhighlight %}
 
     CPU times: user 0 ns, sys: 0 ns, total: 0 ns
-    Wall time: 10 µs
+    Wall time: 5.25 µs
 
 
 
 {% highlight python %}
 from IPython.display import HTML
 {% endhighlight %}
+
+(I haven't yet figured out how to get multiindex tables to look nice in markdown/html!)
 
 
 {% highlight python %}
@@ -258,8 +260,8 @@ HTML(df.head().to_html(float_format='%.4f'))
   <thead>
     <tr>
       <th>scenario</th>
-      <th colspan="3" halign="left">slow_decline</th>
       <th colspan="3" halign="left">recent_crash</th>
+      <th colspan="3" halign="left">slow_decline</th>
     </tr>
     <tr>
       <th>statistic</th>
@@ -274,48 +276,48 @@ HTML(df.head().to_html(float_format='%.4f'))
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.0016</td>
-      <td>1.5078</td>
-      <td>0.0011</td>
       <td>0.0019</td>
       <td>-0.0356</td>
       <td>0.0019</td>
+      <td>0.0016</td>
+      <td>1.5078</td>
+      <td>0.0011</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.0022</td>
-      <td>1.6559</td>
-      <td>0.0015</td>
       <td>0.0018</td>
       <td>0.2704</td>
       <td>0.0017</td>
+      <td>0.0022</td>
+      <td>1.6559</td>
+      <td>0.0015</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>0.0023</td>
-      <td>1.3548</td>
-      <td>0.0017</td>
       <td>0.0019</td>
       <td>0.3512</td>
+      <td>0.0017</td>
+      <td>0.0023</td>
+      <td>1.3548</td>
       <td>0.0017</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>0.0019</td>
-      <td>1.5628</td>
-      <td>0.0013</td>
       <td>0.0020</td>
       <td>0.5189</td>
       <td>0.0018</td>
+      <td>0.0019</td>
+      <td>1.5628</td>
+      <td>0.0013</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>0.0018</td>
-      <td>1.9320</td>
-      <td>0.0011</td>
       <td>0.0013</td>
       <td>-0.7073</td>
       <td>0.0017</td>
+      <td>0.0018</td>
+      <td>1.9320</td>
+      <td>0.0011</td>
     </tr>
   </tbody>
 </table>
@@ -329,10 +331,5 @@ _ = sns.factorplot(x="scenario", y="value", col="statistic",
 {% endhighlight %}
 
 
-![png](/assets/2017-07-17-power-of-correct-tools_files/2017-07-17-power-of-correct-tools_26_0.png)
+![png](/assets/2017-07-17-power-of-correct-tools_files/2017-07-17-power-of-correct-tools_27_0.png)
 
-
-
-{% highlight python %}
-
-{% endhighlight %}
