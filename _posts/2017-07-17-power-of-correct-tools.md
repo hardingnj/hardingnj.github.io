@@ -1,3 +1,8 @@
+---
+layout: post
+title: the-right-tools-for-the-job
+---
+
 
 This blog is an introduction to two python modules, `msprime` (by Jerome Kelleher) and `scikit-allel` (by Alistair Miles), both of whom are based in Oxford at the big data institute. They are both really great tools, and if you work with genomic data I would encourage you to take a look at them. However, the particular point I'd like to make here is that they play really nicely together. 
 
@@ -14,19 +19,19 @@ Writing your own parsing code is prone to bugs, even for experienced coders. It'
 We begin as usual by importing some essential libraries. As well as the two that are the subject of this blog, we use `numpy` to create a format from `msprime` that `allel` can understand, `pandas` for handling tabular data, and the `seaborn` wrapper to `matplotlib` for plotting.
 
 
-```python
+{% highlight python %}
 import allel
 import msprime
 import seaborn as sns
 import numpy as np
 import pandas as pd
 %matplotlib inline
-```
+{% endhighlight %}
 
 
-```python
+{% highlight python %}
 msprime.__version__, allel.__version__
-```
+{% endhighlight %}
 
 
 
@@ -48,34 +53,34 @@ The task I am going to work though is to simulate two populations, with differen
 Obviously here we can specify more complex demographic scenarios as needed!
 
 
-```python
+{% highlight python %}
 history_p1 = [
     msprime.PopulationParametersChange(time=20, growth_rate=-0.25, population_id=0),
     msprime.PopulationParametersChange(time=40, growth_rate=0, population_id=0)]
-```
+{% endhighlight %}
 
 
-```python
+{% highlight python %}
 history_p2 = [
     msprime.PopulationParametersChange(time=20, growth_rate=-0.005, population_id=0),
     msprime.PopulationParametersChange(time=1020, growth_rate=0, population_id=0)]
-```
+{% endhighlight %}
 
 
-```python
+{% highlight python %}
 pop_config = [msprime.PopulationConfiguration(
     sample_size=100, initial_size=1000, growth_rate=0)]
-```
+{% endhighlight %}
 
 `msprime` also has this neat demography debugger feature so we can check the demographic history is as we intended.
 
 
-```python
+{% highlight python %}
 dp = msprime.DemographyDebugger(population_configurations=pop_config,
                                 demographic_events=history_p1)
 
 dp.print_history()
-```
+{% endhighlight %}
 
     
     ============================
@@ -108,12 +113,12 @@ dp.print_history()
 
 
 
-```python
+{% highlight python %}
 dp = msprime.DemographyDebugger(population_configurations=pop_config,
                                 demographic_events=history_p2)
 
 dp.print_history()
-```
+{% endhighlight %}
 
     
     ============================
@@ -148,7 +153,7 @@ dp.print_history()
 This function is the key part, and represents the interface between the two tools. I've tried to explain what's happening in the comments
 
 
-```python
+{% highlight python %}
 def growth_dem_model(pop_cfg, dem_hist, length=1e7, mu=3.5e-9, rrate=1e-8, seed=42):
 
     
@@ -174,22 +179,22 @@ def growth_dem_model(pop_cfg, dem_hist, length=1e7, mu=3.5e-9, rrate=1e-8, seed=
     pos = allel.SortedIndex([int(variant.position) for variant in tree_sequence.variants()])
     
     return gt, pos
-```
+{% endhighlight %}
 
 We'll use a contig of 10 Mbp, and summarize the data in 10 kbp windows.
 
 
-```python
+{% highlight python %}
 contig_length = 10000000
 window_size = 10000
-```
+{% endhighlight %}
 
 
-```python
+{% highlight python %}
 %%time
 simulations = {"recent_crash": growth_dem_model(pop_config, history_p1, length=contig_length),
                "slow_decline": growth_dem_model(pop_config, history_p2, length=contig_length)}
-```
+{% endhighlight %}
 
     Simulated  98234 mutations
     Simulated  70472 mutations
@@ -200,19 +205,19 @@ simulations = {"recent_crash": growth_dem_model(pop_config, history_p1, length=c
 Initialize our data frame: create a multi-index from the combinations of the things we are interested in, and tell it how many rows to expect.
 
 
-```python
+{% highlight python %}
 mi = pd.MultiIndex.from_product((simulations.keys(), ("pi", "tajimaD", "wattersonTheta")),
                                 names=["scenario", "statistic"])
 
 df = pd.DataFrame(columns=mi, index=range(0, contig_length//window_size))
-```
+{% endhighlight %}
 
 Using the nice indexing features of pandas it's simple to write a loop, and save the data in the appropriate index.
 
 `allel` also returns some other values such as counts, and bin limits, which in this case we are not interested in, so we assign to `_`.
 
 
-```python
+{% highlight python %}
 %time
 for key, (haps, pos) in simulations.items():
     
@@ -230,21 +235,21 @@ for key, (haps, pos) in simulations.items():
         pos, haps.count_alleles(), size=window_size, start=0, stop=contig_length)
     
     df[key, "wattersonTheta"] = watt
-```
+{% endhighlight %}
 
     CPU times: user 0 ns, sys: 0 ns, total: 0 ns
     Wall time: 10 µs
 
 
 
-```python
+{% highlight python %}
 from IPython.display import HTML
-```
+{% endhighlight %}
 
 
-```python
-HTML(df.head().to_html())
-```
+{% highlight python %}
+HTML(df.head().to_html(float_format='%.4f'))
+{% endhighlight %}
 
 
 
@@ -269,48 +274,48 @@ HTML(df.head().to_html())
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.001591</td>
-      <td>1.507758</td>
-      <td>0.001082</td>
-      <td>0.001891</td>
-      <td>-0.035604</td>
-      <td>0.001912</td>
+      <td>0.0016</td>
+      <td>1.5078</td>
+      <td>0.0011</td>
+      <td>0.0019</td>
+      <td>-0.0356</td>
+      <td>0.0019</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.002244</td>
-      <td>1.655895</td>
-      <td>0.001487</td>
-      <td>0.001840</td>
-      <td>0.270435</td>
-      <td>0.001700</td>
+      <td>0.0022</td>
+      <td>1.6559</td>
+      <td>0.0015</td>
+      <td>0.0018</td>
+      <td>0.2704</td>
+      <td>0.0017</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>0.002349</td>
-      <td>1.354769</td>
-      <td>0.001661</td>
-      <td>0.001925</td>
-      <td>0.351186</td>
-      <td>0.001738</td>
+      <td>0.0023</td>
+      <td>1.3548</td>
+      <td>0.0017</td>
+      <td>0.0019</td>
+      <td>0.3512</td>
+      <td>0.0017</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>0.001919</td>
-      <td>1.562777</td>
-      <td>0.001294</td>
-      <td>0.002036</td>
-      <td>0.518850</td>
-      <td>0.001758</td>
+      <td>0.0019</td>
+      <td>1.5628</td>
+      <td>0.0013</td>
+      <td>0.0020</td>
+      <td>0.5189</td>
+      <td>0.0018</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>0.001765</td>
-      <td>1.931969</td>
-      <td>0.001101</td>
-      <td>0.001302</td>
-      <td>-0.707278</td>
-      <td>0.001661</td>
+      <td>0.0018</td>
+      <td>1.9320</td>
+      <td>0.0011</td>
+      <td>0.0013</td>
+      <td>-0.7073</td>
+      <td>0.0017</td>
     </tr>
   </tbody>
 </table>
@@ -318,24 +323,16 @@ HTML(df.head().to_html())
 
 
 
-```python
-sns.factorplot(x="scenario", y="value", col="statistic", 
-               data=df.melt(),
-               kind="violin", sharey=False)
-```
+{% highlight python %}
+_ = sns.factorplot(x="scenario", y="value", col="statistic", 
+                   data=df.melt(), kind="violin", sharey=False)
+{% endhighlight %}
+
+
+![png](/assets/2017-07-17-power-of-correct-tools_files/2017-07-17-power-of-correct-tools_26_0.png)
 
 
 
+{% highlight python %}
 
-    <seaborn.axisgrid.FacetGrid at 0x7f0fcae8d2b0>
-
-
-
-
-![png](/images/2017-07-17-power-of-correct-tools_files/2017-07-17-power-of-correct-tools_26_1.png)
-
-
-
-```python
-
-```
+{% endhighlight %}
