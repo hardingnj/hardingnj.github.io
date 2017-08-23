@@ -9,5 +9,6 @@ echo $filename
 
 jupyter nbconvert --to markdown $NB
 
+rm -r ../images/${filename}_files
 mv ${filename}_files ../images 
-sed -i 's/\[png\](/[png](..\/images\//' ${filename}.md
+sed -i 's/\[png\](/[png](\/images\//' ${filename}.md

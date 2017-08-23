@@ -332,7 +332,7 @@ sns.factorplot(x="scenario", y="value", col="statistic",
 
 
 
-![png](../images/2017-07-17-power-of-correct-tools_files/2017-07-17-power-of-correct-tools_26_1.png)
+![png](/images/2017-07-17-power-of-correct-tools_files/2017-07-17-power-of-correct-tools_26_1.png)
 
 
 
