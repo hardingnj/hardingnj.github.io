@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Finding the right tools for the job
+title: Coalescent simulation in python: A brief introduction
 ---
 
 
