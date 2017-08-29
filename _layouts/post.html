@@ -1,18 +1,17 @@
 ---
 layout: default
 ---
+<div class="post">
 
-<article class="post">
+  <header class="post-header">
+    <h1 class="post-title">{{ page.title }}</h1>
+    <p class="post-meta">{{ page.date | date: "%b %-d, %Y" }}{% if page.author %} • {{ page.author }}{% endif %}{% if page.meta %} • {{ page.meta }}{% endif %}</p>
+  </header>
 
-  <h1>{{ page.title }}</h1>
-
-  <div class="entry">
+  <article class="post-content">
     {{ content }}
-  </div>
+  </article>
 
-  <div class="date">
-    Written on {{ page.date | date: "%B %e, %Y" }}
-  </div>
+{% include disqus.html %}
 
-  {% include disqus.html %}
-</article>
+</div>
