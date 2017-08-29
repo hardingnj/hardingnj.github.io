@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Coalescent simulation in python: A brief introduction
+title: Coalescent simulation in python, a brief introduction
 ---
 
 
