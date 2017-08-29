@@ -26,20 +26,15 @@ import allel
 import msprime
 import seaborn as sns
 import pandas as pd
+import numpy as np
 %matplotlib inline
 {% endhighlight %}
 
 
 {% highlight python %}
-msprime.__version__, allel.__version__
+assert msprime.__version__ == "0.4.0"
+assert allel.__version__ == "1.1.9"
 {% endhighlight %}
-
-
-
-
-    ('0.4.0', '1.1.9')
-
-
 
 ### Overview
 
@@ -169,12 +164,18 @@ def growth_dem_model(pop_cfg, dem_hist, length=1e7, mu=3.5e-9, rrate=1e-8, seed=
     # print the number of mutations in the trees using an internal method
     print("Simulated ", tree_sequence.get_num_mutations(), "mutations")
     
-    # another method returns a generator for these variants and we instantiate as a list
-    _gt = [variant.genotypes for variant in tree_sequence.variants()]
+    # thanks to Jerome for the code here.
+    # The best way to do this is to preallocate a numpy array 
+    # (or even better the allel.HaplotypeArray), and fill it incrementally: 
+    V = np.zeros((tree_sequence.get_num_mutations(), tree_sequence.get_sample_size()),
+                 dtype=np.int8)
+
+    for variant in tree_sequence.variants():
+        V[variant.index] = variant.genotypes 
     
-    # create a haplotype array in allel from a list of numpy arrays of 0/1s
+    # create a haplotype array in allel from numpy arrays of 0s/1s
     # as the dataset is reasonably small there is no need to use the chunking functionality of allel
-    gt = allel.HaplotypeArray(_gt)
+    gt = allel.HaplotypeArray(V)
     
     # scikit-allel expects integer values here rather than infinite sites model of msprime.
     pos = allel.SortedIndex([int(variant.position) for variant in tree_sequence.variants()])
@@ -199,8 +200,8 @@ simulations = {"recent_crash": growth_dem_model(pop_config, history_p1, length=c
 
     Simulated  98234 mutations
     Simulated  70472 mutations
-    CPU times: user 3min, sys: 60 ms, total: 3min
-    Wall time: 3min
+    CPU times: user 1min 54s, sys: 167 ms, total: 1min 54s
+    Wall time: 1min 54s
 
 
 Initialize our data frame: create a multi-index from the combinations of the things we are interested in, and tell it how many rows to expect.
@@ -238,8 +239,8 @@ for key, (haps, pos) in simulations.items():
     df[key, "wattersonTheta"] = watt
 {% endhighlight %}
 
-    CPU times: user 0 ns, sys: 0 ns, total: 0 ns
-    Wall time: 7.63 µs
+    CPU times: user 2 µs, sys: 1e+03 ns, total: 3 µs
+    Wall time: 4.05 µs
 
 
 
@@ -277,47 +278,47 @@ HTML(df.head().to_html(float_format='%.4f'))
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.0026</td>
-      <td>1.0976</td>
       <td>0.0019</td>
+      <td>-0.0356</td>
       <td>0.0019</td>
-      <td>2.5442</td>
+      <td>0.0016</td>
+      <td>1.5078</td>
       <td>0.0011</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.0023</td>
-      <td>1.0926</td>
+      <td>0.0018</td>
+      <td>0.2704</td>
       <td>0.0017</td>
-      <td>0.0027</td>
-      <td>2.5882</td>
+      <td>0.0022</td>
+      <td>1.6559</td>
       <td>0.0015</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>0.0023</td>
-      <td>1.0936</td>
+      <td>0.0019</td>
+      <td>0.3512</td>
       <td>0.0017</td>
-      <td>0.0030</td>
-      <td>2.6009</td>
+      <td>0.0023</td>
+      <td>1.3548</td>
       <td>0.0017</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>0.0023</td>
-      <td>1.0940</td>
+      <td>0.0020</td>
+      <td>0.5189</td>
       <td>0.0018</td>
-      <td>0.0023</td>
-      <td>2.5704</td>
+      <td>0.0019</td>
+      <td>1.5628</td>
       <td>0.0013</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>0.0022</td>
-      <td>1.0915</td>
+      <td>0.0013</td>
+      <td>-0.7073</td>
       <td>0.0017</td>
-      <td>0.0020</td>
-      <td>2.5470</td>
+      <td>0.0018</td>
+      <td>1.9320</td>
       <td>0.0011</td>
     </tr>
   </tbody>
