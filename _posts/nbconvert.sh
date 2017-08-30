@@ -12,7 +12,7 @@ echo Title: $title
 echo Output: $md 
 
 # use nbconvert with vanilla markdown
-rm -v $md
+rm -vf $md
 jupyter nbconvert --to markdown $ipynb
 
 # insert frontmatter
