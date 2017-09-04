@@ -4,7 +4,7 @@ title: Animating population demographic changes
 ---
 
 
-Following a conversation with [@alimanfoo](www.twitter.com/alimanfoo), we thought it would be neat to animate the genetic signature of a population crash/expansion as it unfolds.
+Following a conversation with [@alimanfoo](https://www.twitter.com/alimanfoo), we thought it would be neat to animate the genetic signature of a population crash/expansion as it unfolds.
 
 Although a forward simulation is probably more appropriate here, I chose the blisteringly fast coalesent simulator `msprime`. Strictly speaking, the simulations shown here aren't following a single population crashing, but multiple independent populations at different time periods given a particular demographic history.
 
@@ -18,7 +18,7 @@ Following the crash we see that even after 5000 generations, the site frequency 
 
 This is explored a little more thoroughly at the bottom of this page.
 
-<iframe width="740" height="500" src="/assets/popcrash.mp4" frameborder="0" loop allowfullscreen></iframe> 
+<iframe width="740" height="450" src="/assets/popcrash.mp4" frameborder="0" loop allowfullscreen></iframe> 
 
 {% highlight python %}
 #HTML(html5)
