@@ -18,7 +18,7 @@ Following the crash we see that even after 5000 generations, the site frequency 
 
 This is explored a little more thoroughly at the bottom of this page.
 
-<iframe width="420" height="315" src="/assets/popcrash.mp4" frameborder="0" loop allowfullscreen></iframe> 
+<iframe width="740" height="500" src="/assets/popcrash.mp4" frameborder="0" loop allowfullscreen></iframe> 
 
 {% highlight python %}
 #HTML(html5)
@@ -376,7 +376,7 @@ html5 = anim.to_html5_video()
 HTML(html5)
 {% endhighlight %}
 
-<iframe width="420" height="315" src="/assets/popcrash.mp4" frameborder="0" loop allowfullscreen></iframe> 
+<iframe width="740" height="500" src="/assets/popcrash.mp4" frameborder="0" loop allowfullscreen></iframe> 
 
 {% highlight python %}
 anim.save("../assets/popcrash.mp4")
