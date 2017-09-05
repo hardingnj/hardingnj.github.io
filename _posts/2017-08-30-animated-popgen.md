@@ -4,38 +4,39 @@ title: Animating population demographic changes
 ---
 
 
-Following a conversation with [@alimanfoo](https://www.twitter.com/alimanfoo), we thought it would be neat to animate the genetic signature of a population crash/expansion as it unfolds.
+This post seeks to animate the genetic signature of a population crash/expansion as it unfolds, just to shed a little bit more light on when a crash is detectable, and how long it takes to stabilise post-crash.
 
-Although a forward simulation is probably more appropriate here, I chose the blisteringly fast coalesent simulator `msprime`. Strictly speaking, the simulations shown here aren't following a single population crashing, but multiple independent populations at different time periods given a particular demographic history.
+Although a forward simulation is probably more appropriate here, I chose the extremely fast coalesent simulator `msprime`. Strictly speaking, the simulations shown here aren't following a single population crashing, but multiple independent populations at different time periods given a particular demographic history.
 
-`msprime` is plenty fast enough to handle this type of work, comfortably handling 140 separate coalescent simulations over 10 Mbp. Also, the independent observations allow us to visualise the inherent stochasticity present.
+`msprime` is plenty fast enough to handle this type of work, comfortably handling 140 separate coalescent simulations over 10 Mbp in about 90 minutes. Also, the independent observations allow us to visualise the inherent stochasticity present.
 
 The rest of the post details how this was done. But the final animation is shown just below...
 
-The site frequency spectrum (SFS) is the distribution of allele frequencies, this encodes information regarding population demographic history. Populations that have experienced contraction tend to have a dearth of rare variants. Here we plot the scaled SFS, where a stable population is expected to show a straight (horizontal) line. Tajima's D is a related statistic, and represents the ratio of variation at a per chromosome level to the absolute number of variants in the population. 
-
-Following the crash we see that even after 5000 generations, the site frequency spectrum is far from a horizontal line. Also, Tajima's D is heavily right skewed. This is an interesting observation - severe population bottlenecks still leave a signature 5000 generations later!
-
-This is explored a little more thoroughly at the bottom of this page.
-
 <iframe width="740" height="450" src="/assets/popcrash.mp4" frameborder="0" loop allowfullscreen></iframe> 
+
+The site frequency spectrum (SFS) is the distribution of allele frequencies among SNPs present in the population. 
+Under neutrality and a constant population size, we expect rare variants to be observed frequently as they may occur via sporadic mutations- in contrast common variants should be rare, as they take a long time to drift to high frequency. 
+The allele frequency of a polymorphism has a direct relationship to the number of times we may expect to see a polymophism with that allele frequency, a direct consequence of drift.
+Note that this is independent of the total number of mutations that a population can maintain, the SFS pertains to the _relative_ levels of polymorphisms with different allele frequencies.
+The SFS encodes information regarding population demographic history; populations that have experienced contraction tend to have a dearth of rare variants, as genetic drift is much more likely to remove these polymorphisms from the population.
+
+Here we plot the scaled SFS, where a stable population is expected to show a straight (horizontal) line. Tajima's D is a related statistic, and represents the ratio of variation at a per chromosome level to the absolute number of variants in the population. 
+
+Following the crash we see that even 5000 generations later, the site frequency spectrum hugely disrupted, Tajima's D is also heavily right skewed. This is an interesting observation - severe population bottlenecks still leave profound effects on genomes 5000 generations later. (This is explored a little more thoroughly at the bottom of this page.)
 
 {% highlight python %}
 #HTML(html5)
 {% endhighlight %}
 
-
 {% highlight python %}
 from IPython.display import HTML
 {% endhighlight %}
-
 
 {% highlight python %}
 from matplotlib import animation
 import matplotlib.pyplot as plt
 import seaborn as sns
 {% endhighlight %}
-
 
 {% highlight python %}
 import os
@@ -48,7 +49,6 @@ import allel
 ## Simulations begin
 
 If you happened to see my previous post, I wrote about the interface between `msprime` and `scikit-allel`, see [here](http://hardingnj.github.io/2017/08/23/power-of-correct-tools.html). This function is taken directly from that, but with one addition, a cache for previously generated tree sequences. Although `msprime` is fast, simulating 140 different dempgraphic scenarios takes some time!
-
 
 {% highlight python %}
 def growth_dem_model(pop_cfg, dem_hist, length=1e7, mu=3.5e-9, rrate=1e-8, seed=None, 
@@ -96,7 +96,7 @@ def growth_dem_model(pop_cfg, dem_hist, length=1e7, mu=3.5e-9, rrate=1e-8, seed=
 
 ### Parameters
 
-Here I define recombination rate, mutation rate, and how much DNA I want to simulate!
+Here I define recombination rate, mutation rate, and how much DNA I want to simulate.
 
 
 {% highlight python %}
@@ -123,7 +123,6 @@ abs_time = 5000
 
 Now we need to decide which generations to simualate, I chose a gap of 100 generations, but reduced to 10 during the population crash. This has the nice effect of having more detail over this time point, as well as slowing down the animation during the interesting bit.
 
-
 {% highlight python %}
 # define the generations to iterate over.
 # more time on interesting periods.
@@ -133,9 +132,6 @@ generations = np.concatenate(
      np.arange(abs_time + span, gen_limit, 100)])
 generations
 {% endhighlight %}
-
-
-
 
     array([   0,  100,  200,  300,  400,  500,  600,  700,  800,  900, 1000,
            1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100,
@@ -153,22 +149,13 @@ generations
            5930, 5940, 5950, 5960, 5970, 5980, 5990, 6000, 6100, 6200, 6300,
            6400, 6500, 6600, 6700, 6800, 6900])
 
-
-
-
 {% highlight python %}
 len(generations)
 {% endhighlight %}
 
-
-
-
     160
 
-
-
 This is just a quick sum to work out the ancestral size of the population- because we are dealing with the coalescent, we work backwards...
-
 
 {% highlight python %}
 # ancestral size
@@ -176,11 +163,7 @@ initial_size * math.exp(-growth_rate * span)
 {% endhighlight %}
 
 
-
-
     148413.1591025766
-
-
 
 
 {% highlight python %}
@@ -188,7 +171,6 @@ size_history = []
 {% endhighlight %}
 
 Here I specify a seed so that the cacheing described above works.
-
 
 {% highlight python %}
 np.random.seed(42)
@@ -248,7 +230,6 @@ for gen, seed in zip(generations, seeding):
 
 Using `scikit-allel` we calculate the scaled site frequency spectrum and Tajima's D in 10kbp windows. These are stored in dicts to be used later in the animation.
 
-
 {% highlight python %}
 tajima = {}
 sfs = {}
@@ -279,16 +260,7 @@ max_var = reduce(max, [max(x) for x in sfs.values()])
 
 {% highlight python %}
 n_frames = len(generations)
-n_frames
 {% endhighlight %}
-
-
-
-
-    160
-
-
-
 
 {% highlight python %}
 import warnings
@@ -297,10 +269,11 @@ warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
 This is a fairly standard matplotlib animation. It's not the most efficient, as it redraws the whole axes for the SFS and Tajima's D plots, but it does the job.
 
-These two tutorials helped me immensely:
-http://jakevdp.github.io/blog/2013/05/12/embedding-matplotlib-animations/
+These two tutorials were extremely helpful:
 
-https://stackoverflow.com/questions/43552575/how-to-make-a-matplotlib-animated-violinplot
+- http://jakevdp.github.io/blog/2013/05/12/embedding-matplotlib-animations/
+
+- https://stackoverflow.com/questions/43552575/how-to-make-a-matplotlib-animated-violinplot
 
 
 
@@ -429,6 +402,8 @@ allel.plot_sfs_scaled(sfs_b, ax=ax)
 plt.show()
 {% endhighlight %}
 
-
 ![png](/assets/2017-08-30-animated-popgen_files/2017-08-30-animated-popgen_35_0.png)
 
+Fin. 
+
+Thanks to [@alimanfoo](https://www.twitter.com/alimanfoo) for the intial idea, and [@jeromekelleher](https://twitter.com/jeromekelleher) for help with the implementation.
