@@ -3,26 +3,31 @@ layout: post
 title: Animating population demographic changes
 ---
 
-
-This post seeks to animate the genetic signature of a population crash/expansion as it unfolds, just to shed a little bit more light on when a crash is detectable, and how long it takes to stabilise post-crash.
+This post animates the genetic signature of a population crash as it unfolds, attempting to shed a little bit more light on when a crash is detectable, and how long it takes to stabilise post-crash.
 
 Although a forward simulation is probably more appropriate here, I chose the extremely fast coalesent simulator `msprime`. Strictly speaking, the simulations shown here aren't following a single population crashing, but multiple independent populations at different time periods given a particular demographic history.
 
 `msprime` is plenty fast enough to handle this type of work, comfortably handling 140 separate coalescent simulations over 10 Mbp in about 90 minutes. Also, the independent observations allow us to visualise the inherent stochasticity present.
 
-The rest of the post details how this was done. But the final animation is shown just below...
+The rest of the post details how this was done. But the final animation is shown below:
 
 <iframe width="740" height="450" src="/assets/popcrash.mp4" frameborder="0" loop allowfullscreen></iframe> 
 
-The site frequency spectrum (SFS) is the distribution of allele frequencies among SNPs present in the population. 
+The left panel shows the demographic history of the population, with the time point currently displayed in the other two panels.
+In the centre, I show the site frequency spectrum (SFS).
+This is the distribution of allele frequencies among SNPs present in the population. 
 Under neutrality and a constant population size, we expect rare variants to be observed frequently as they may occur via sporadic mutations- in contrast common variants should be rare, as they take a long time to drift to high frequency. 
 The allele frequency of a polymorphism has a direct relationship to the number of times we may expect to see a polymophism with that allele frequency, a direct consequence of drift.
 Note that this is independent of the total number of mutations that a population can maintain, the SFS pertains to the _relative_ levels of polymorphisms with different allele frequencies.
-The SFS encodes information regarding population demographic history; populations that have experienced contraction tend to have a dearth of rare variants, as genetic drift is much more likely to remove these polymorphisms from the population.
+The SFS therefore encodes information regarding population demographic history; populations that have experienced contraction tend to have a dearth of rare variants, as genetic drift is much more likely to remove these polymorphisms from the population, but insufficient time has passed to generate new mutations.
 
-Here we plot the scaled SFS, where a stable population is expected to show a straight (horizontal) line. Tajima's D is a related statistic, and represents the ratio of variation at a per chromosome level to the absolute number of variants in the population. 
+Here we plot the scaled SFS, where a stable population is expected to show a straight (horizontal) line. 
+Tajima's `D` is a related statistic, and represents the ratio of variation at a per chromosome level to the absolute number of variants in the population. 
+A negative `D` suggests an excess of rare variants.
 
-Following the crash we see that even 5000 generations later, the site frequency spectrum hugely disrupted, Tajima's D is also heavily right skewed. This is an interesting observation - severe population bottlenecks still leave profound effects on genomes 5000 generations later. (This is explored a little more thoroughly at the bottom of this page.)
+Following the crash we see that even 5000 generations later, the site frequency spectrum hugely disrupted, Tajima's `D` is also heavily right skewed.
+This is an interesting observation - severe population bottlenecks still leave profound effects on genomes 5000 generations later. 
+(I explore this a little more thoroughly at the bottom of this page.)
 
 {% highlight python %}
 #HTML(html5)
@@ -110,7 +115,7 @@ sample_size = 100 # chromosomes
 
 ### Specifications
 
-Here I make some intial specifications about the demographic history I wish to simulate... The population is at time `t` 1000 chromosomes, with a decline of 0.5% per generation for 1000 generations completing at 5000 generations in the past.
+Here I make some intial specifications about the demographic history I wish to simulate... The population is at time `t` 1000 chromosomes, with a decline of 0.5% per generation for 1000 generations completing at 5000 generations in the past (and therefore starting at 6000 generations in the past).
 
 
 {% highlight python %}
@@ -121,7 +126,7 @@ growth_rate = -0.005
 abs_time = 5000
 {% endhighlight %}
 
-Now we need to decide which generations to simualate, I chose a gap of 100 generations, but reduced to 10 during the population crash. This has the nice effect of having more detail over this time point, as well as slowing down the animation during the interesting bit.
+Now we need to decide at which time points to sample, I chose a gap of 100 generations, reduced to 10 during the population crash. This has the nice effect of having more detail over this time point, as well as slowing down the animation during the interesting bit.
 
 {% highlight python %}
 # define the generations to iterate over.
@@ -251,12 +256,11 @@ from functools import reduce
 
 
 {% highlight python %}
-# this value used to decide where the y limit is!
+# this value used to decide where the y limit is for later plots
 max_var = reduce(max, [max(x) for x in sfs.values()])
 {% endhighlight %}
 
 ## Now animate
-
 
 {% highlight python %}
 n_frames = len(generations)
@@ -267,14 +271,15 @@ import warnings
 warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning) 
 {% endhighlight %}
 
-This is a fairly standard matplotlib animation. It's not the most efficient, as it redraws the whole axes for the SFS and Tajima's D plots, but it does the job.
+This is a fairly standard matplotlib animation. It's not the most efficient, as it redraws the whole axes for the SFS and Tajima's D plots, but it works well enough here.
 
-These two tutorials were extremely helpful:
+These two tutorials were extremely helpful in putting this together:
 
 - http://jakevdp.github.io/blog/2013/05/12/embedding-matplotlib-animations/
 
 - https://stackoverflow.com/questions/43552575/how-to-make-a-matplotlib-animated-violinplot
 
+So thanks to the respective authors/answerers.
 
 
 {% highlight python %}
@@ -355,14 +360,13 @@ HTML(html5)
 anim.save("../assets/popcrash.mp4")
 {% endhighlight %}
 
-## Is a crash detectable 5000 generations later?
+## Is a severe crash detectable 5000 generations later?
 
-To investivate this I ran two contrasting demographic scenarios. One a population that has been at a constant Ne of 1000 for 5000 generations, but before that experiencing a severe crash from approximately 140,000 over a span of 1000 generations. 
+To show this I ran two contrasting demographic scenarios. One a population that has been at a constant Ne of 1000 for 5000 generations, but before that experiencing a severe crash from approximately 140,000 over a span of 1000 generations. 
 
 The null, alternative model shows a population at a stable Ne of 1000.
 
 The simulation below clearly shows an extremely disrupted site frequency spectrum in the "crash model".
-
 
 {% highlight python %}
 history_pA = [
